@@ -38,6 +38,11 @@
                             <li class="{{ Request::is('users*') ? 'active' : '' }}"><a href="{{ route('users.index') }}">Users</a></li>
                             <li class="{{ Request::is('roles*') ? 'active' : '' }}"><a href="{{ route('roles.index') }}">Roles</a></li>
                         @endif
+						
+						@if (Sentinel::check())
+                            <li class="{{ Request::is('posts*') ? 'active' : '' }}"><a href="{{ route('dashboard') }}">Posts</a></li>                           
+                        @endif
+						
                     </ul>
                     <ul class="nav navbar-nav navbar-right">
                         @if (Sentinel::check())
