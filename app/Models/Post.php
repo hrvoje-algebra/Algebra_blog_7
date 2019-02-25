@@ -19,7 +19,7 @@ class Post extends Model
 	 
     public function user()
     {
-        return $this->belongsTo(static::$userModel, 'id');
+        return $this->belongsTo(static::$userModel, 'user_id');
     }
 	
      /**
@@ -31,7 +31,7 @@ class Post extends Model
 	 
 	 public function savePost($post)
 	 {
-		 return $this->fill($post)->save();
+		 return $this->create($post);
 	 }
 	 
 	 /**

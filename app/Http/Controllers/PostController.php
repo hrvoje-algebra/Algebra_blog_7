@@ -4,10 +4,18 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Post;
+use App\Http\Requests\StorePost;
 use Sentinel;
 
 class PostController extends Controller
 {
+	
+	public function __construct()
+	{
+		//Middleware za postove - vraca nas na login
+		$this->middleware('sentinel.auth');
+	}
+	
     /**
      * Display a listing of the resource.
      *
@@ -35,7 +43,7 @@ class PostController extends Controller
      */
     public function create()
     {
-        //
+        return view('posts.create');
     }
 
     /**
@@ -44,9 +52,25 @@ class PostController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(StorePost $request)
     {
-        //
+        //dd($request);
+		
+		$post = array(
+			'title' 	=> $request->get('title'),
+			'content'	=> $request->get('content'),
+			'user_id'	=> Sentinel::getUser()->id
+		);
+		
+		$new_post = new Post();
+		
+		$data = $new_post->savePost($post);
+		
+		//dd($data);
+		
+		session()->flash('success', 'You have successfuly created a new post');
+		return redirect()->route('posts.index');
+		
     }
 
     /**
@@ -68,7 +92,18 @@ class PostController extends Controller
      */
     public function edit($id)
     {
-        //
+		$post = Post::findOrFail($id);
+		
+		if(Sentinel::getUser()->id === $post->user_id || Sentinel::inRole('administrator'))
+		{		
+			return view('posts.edit')->with('post',$post);
+		}
+		else{
+			session()->flash('info', 'You can\'t edit this post');
+			return redirect()->route('posts.index');
+			
+		}
+			
     }
 
     /**
@@ -80,7 +115,26 @@ class PostController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+        $post = Post::findOrFail($id);
+			
+		$post_data = array(
+		'title' 	=> $request->get('title'),
+		'content'	=> $request->get('content')
+		);
+		
+		if(Sentinel::getUser()->id === $post->user_id || Sentinel::inRole('administrator'))
+		{		
+			$post->updatePost($post_data);
+		}
+		else{
+			session()->flash('info', 'You can\'t update this post');
+			return redirect()->route('posts.index');
+			
+		}
+		
+		session()->flash('success', 'You have successfuly updated post');
+		return redirect()->route('posts.index');
+		
     }
 
     /**
@@ -91,6 +145,20 @@ class PostController extends Controller
      */
     public function destroy($id)
     {
-        //
+		$post = Post::findOrFail($id);
+		
+	
+		if(Sentinel::getUser()->id === $post->user_id || Sentinel::inRole('administrator'))
+		{		
+			$post->delete();
+		}
+		else{
+			session()->flash('info', 'You can\'t delete this post');
+			return redirect()->route('posts.index');
+			
+		}
+		
+		session()->flash('success', 'You have successfuly deleted post');
+		return redirect()->route('posts.index');
     }
 }
