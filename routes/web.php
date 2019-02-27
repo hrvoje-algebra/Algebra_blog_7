@@ -17,6 +17,9 @@ Route::get('/', function () {
 
 Route::get('/', ['as' => 'index', 'uses' =>'IndexController@index']);
 
+//Post page
+Route::get('post/{slug}', ['as' => 'post.show', 'uses' =>'IndexController@show']);
+
 // Authorization
 Route::get('login', 'Auth\SessionController@getLogin')->name('auth.login.form');
 Route::post('login', 'Auth\SessionController@postLogin')->name('auth.login.attempt');
